@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "entitywidgets",
+  "version": "${version}",
+
+  "name": "Entity Widgets",
+  "description": "Adds widgets which allow entities to be rendered on any non-in game screen.",
+  "authors": [
+    {
+      "name": "i509VCB",
+      "contact": {
+        "homepage": "https://github.com/i509VCB",
+        "sources": "https://github.com/i509VCB"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://github.com/i509VCB/EntityWidgets",
+    "sources": "https://github.com/i509VCB/EntityWidgets",
+    "issues": "https://github.com/i509VCB/EntityWidgets/issues"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.i509.fabric.entitywidgets.EntityWidgetClientMod"
+    ]
+  },
+  "mixins": [
+    "mixins.entitywidgets.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.7.2"
+  },
+  "custom": {
+    "modmenu:api": true,
+    "modmenu:clientsideOnly": true
+  }
+}

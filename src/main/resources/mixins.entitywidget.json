@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "me.i509.fabric.entitywidgets.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "Sku"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
