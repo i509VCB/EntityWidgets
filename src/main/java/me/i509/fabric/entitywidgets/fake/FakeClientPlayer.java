@@ -24,7 +24,7 @@
 
 package me.i509.fabric.entitywidgets.fake;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import net.fabricmc.api.EnvType;
@@ -37,25 +37,30 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
  * A fake player entity which can be used to rendering.
  */
 @Environment(EnvType.CLIENT)
-@SuppressWarnings("EntityConstructor")
 public class FakeClientPlayer extends AbstractClientPlayerEntity {
-	private List<PlayerModelPart> visibleModelParts = new ArrayList<>();
-	private Map<MinecraftProfileTexture.Type, Identifier> textures = Maps.newEnumMap(
-			MinecraftProfileTexture.Type.class
-	);
-	private GameMode gameMode = GameMode.NOT_SET;
-	@Nullable private String model;
+	private final GameMode gameMode;
+	private final ImmutableList<PlayerModelPart> visibleModelParts;
+	private final Map<MinecraftProfileTexture.Type, Identifier> textures;
+	@Nullable private final String model;
 
-	public FakeClientPlayer(ClientWorld world, GameProfile profile) {
+	FakeClientPlayer(
+			ClientWorld world,
+			GameProfile profile,
+			GameMode gameMode,
+			ImmutableList<PlayerModelPart> visibleModelParts,
+			Map<MinecraftProfileTexture.Type, Identifier> textures,
+			@Nullable String model) {
 		super(world, profile);
+		this.gameMode = gameMode;
+		this.visibleModelParts = visibleModelParts;
+		this.textures = textures;
+		this.model = model;
 	}
 
 	@Override
@@ -69,25 +74,12 @@ public class FakeClientPlayer extends AbstractClientPlayerEntity {
 	}
 
 	@Override
-	public void setGameMode(GameMode gameMode) {
-		this.gameMode = gameMode;
-	}
-
-	@Override
 	public String getModel() {
 		if (this.model != null) {
 			return this.model;
 		}
 
 		return "default";
-	}
-
-	public void setModel(String model) {
-		this.model = model;
-	}
-
-	public void setTextures(Map<MinecraftProfileTexture.Type, Identifier> textures) {
-		this.textures = textures;
 	}
 
 	@Override
@@ -116,20 +108,6 @@ public class FakeClientPlayer extends AbstractClientPlayerEntity {
 	@Override
 	public Identifier getElytraTexture() {
 		return this.textures.get(MinecraftProfileTexture.Type.ELYTRA);
-	}
-
-	public void enableAllModelParts() {
-		for (PlayerModelPart part : PlayerModelPart.values()) {
-			enableModelPart(part);
-		}
-	}
-
-	public boolean enableModelPart(PlayerModelPart part) {
-		return this.visibleModelParts.add(part);
-	}
-
-	public boolean removeModelPart(PlayerModelPart part) {
-		return this.visibleModelParts.remove(part);
 	}
 
 	@Override

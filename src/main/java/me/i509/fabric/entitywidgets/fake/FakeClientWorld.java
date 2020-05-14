@@ -28,18 +28,21 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.profiler.DummyProfiler;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.dimension.DimensionType;
 
 @Environment(EnvType.CLIENT)
 public class FakeClientWorld extends ClientWorld {
-	public FakeClientWorld(FakeClientPlayNetworkHandler fakeClientPlayNetworkHandler) {
+	public FakeClientWorld(FakeClientPlayNetworkHandler fakeClientPlayNetworkHandler, Difficulty difficulty) {
 		super(
 				fakeClientPlayNetworkHandler,
-				new Fake5217(),
+				new class_5271(difficulty, false, false),
 				DimensionType.OVERWORLD,
 				0,
 				() -> DummyProfiler.INSTANCE,
-				null // WorldRenderer
+				null, // WorldRenderer
+				false,
+				0L // Seed?
 		);
 	}
 }

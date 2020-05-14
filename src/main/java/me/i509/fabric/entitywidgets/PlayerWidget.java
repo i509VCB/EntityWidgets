@@ -29,6 +29,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import me.i509.fabric.entitywidgets.fake.FakeClientPlayer;
+import me.i509.fabric.entitywidgets.fake.FakePlayerBuilder;
 import me.i509.fabric.entitywidgets.mixin.SkullBlockEntityAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -47,6 +48,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * A widget which allows a {@link EntityType#PLAYER} to be rendered on a screen.
@@ -59,6 +61,7 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 	private final Map<MinecraftProfileTexture.Type, Identifier> textures = Maps.newEnumMap(
 			MinecraftProfileTexture.Type.class
 	);
+	private final Consumer<FakePlayerBuilder> playerBuilder;
 	@MonotonicNonNull
 	private GameProfile fullProfile;
 	private GameProfile fallbackProfile;
@@ -70,20 +73,21 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 			int x,
 			int y,
 			int size,
+			Consumer<FakePlayerBuilder> playerBuilder,
 			BiConsumer<FakeClientPlayer, Float> entityManipulator,
 			EntityWidgetManipulation<FakeClientPlayer> manipulation,
 			UUID playerUuid,
 			String fallbackUsername
 	) {
-		this(x, y, size, entityManipulator, manipulation, playerUuid, fallbackUsername,
-				DefaultSkinHelper.getModel(playerUuid).equals("slim")
-		);
+		this(x, y, size, playerBuilder, entityManipulator, manipulation, playerUuid, fallbackUsername,
+				DefaultSkinHelper.getModel(playerUuid).equals("slim"));
 	}
 
 	public PlayerWidget(
 			int x,
 			int y,
 			int size,
+			Consumer<FakePlayerBuilder> playerBuilder,
 			BiConsumer<FakeClientPlayer, Float> entityManipulator,
 			EntityWidgetManipulation<FakeClientPlayer> manipulation,
 			UUID playerUuid,
@@ -92,6 +96,8 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 	) {
 		super(x, y, size, entityManipulator, manipulation);
 		this.fallbackProfile = new GameProfile(playerUuid, fallbackUsername);
+		this.playerBuilder = playerBuilder;
+		this.model = thinArms ? "default" : "slim";
 		// Now the futures nightmare
 		GameProfile profile = new GameProfile(playerUuid, null);
 
@@ -112,11 +118,10 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 			profile = this.fallbackProfile;
 		}
 
-		FakeClientPlayer fakeClientPlayer = new FakeClientPlayer(this.fakeClientWorld, profile);
-		fakeClientPlayer.setModel(this.model); // Set the model
-		fakeClientPlayer.setTextures(this.textures); // Set the textures
+		FakePlayerBuilder builder = new FakePlayerBuilder(this.fakeClientWorld, profile, this.model, this.textures);
+		this.playerBuilder.accept(builder);
 
-		return fakeClientPlayer;
+		return builder.build();
 	}
 
 	public boolean shouldDisplayName() {

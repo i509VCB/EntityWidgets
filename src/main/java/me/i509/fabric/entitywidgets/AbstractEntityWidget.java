@@ -44,6 +44,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.stat.StatHandler;
 import net.minecraft.util.math.Quaternion;
+import net.minecraft.world.Difficulty;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -66,17 +67,18 @@ public abstract class AbstractEntityWidget<E extends LivingEntity> implements Dr
 			// We have to coerce the game into thinking our player's profile exists here
 			new GameProfile(UUID.randomUUID(), "FakeCamera")
 	);
-	protected final FakeClientWorld fakeClientWorld = new FakeClientWorld(this.fakeClientPlayNetworkHandler);
+	protected final FakeClientWorld fakeClientWorld;
 
 	private boolean visible = true;
 
-	protected AbstractEntityWidget(int x, int y, int size, BiConsumer<E, Float> entityManipulator,
-			EntityWidgetManipulation<E> manipulation) {
+	protected AbstractEntityWidget(int x, int y, int size,
+			BiConsumer<E, Float> entityManipulator, EntityWidgetManipulation<E> manipulation) {
 		this.x = x;
 		this.y = y;
 		this.size = size;
 		this.entityManipulator = entityManipulator;
 		this.manipulation = manipulation;
+		this.fakeClientWorld = new FakeClientWorld(this.fakeClientPlayNetworkHandler, Difficulty.EASY);
 	}
 
 	/**

@@ -3,7 +3,7 @@
   "package": "me.i509.fabric.entitywidgets.mixin",
   "compatibilityLevel": "JAVA_8",
   "client": [
-    "Sku"
+    "SkullBlockEntityAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
