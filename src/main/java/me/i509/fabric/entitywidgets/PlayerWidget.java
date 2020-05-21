@@ -150,14 +150,22 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 
 			MinecraftClient client = MinecraftClient.getInstance();
 
+			if (client.getSkinProvider() == null) {
+				return;
+			}
+
 			client.execute(() -> {
 				if (fullProfile != null) {
 					PlayerWidget.this.fullProfile = fullProfile;
 				}
 			});
 
-			Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textureMap = client.getSkinProvider()
-					.getTextures(fullProfile);
+			if (fullProfile == null) {
+				System.out.println("Failed to get profile");
+				return;
+			}
+
+			Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textureMap = client.getSkinProvider().getTextures(fullProfile);
 
 			// Texture map is unchecked
 			if (textureMap.isEmpty()) {

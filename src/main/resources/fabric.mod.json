@@ -24,6 +24,9 @@
   "entrypoints": {
     "client": [
       "me.i509.fabric.entitywidgets.EntityWidgetClientMod"
+    ],
+    "modmenu": [
+      "me.i509.fabric.entitywidgets.ModmenuExtension"
     ]
   },
   "mixins": [

@@ -147,6 +147,8 @@ public abstract class AbstractEntityWidget<E extends LivingEntity> implements Dr
 
 		dispatcher.configure(this.fakeClientWorld, new Camera(), entity);
 
+		matrices.push();
+
 		RenderSystem.pushMatrix();
 		RenderSystem.translatef(this.getX(), this.getY(), -50.0F);
 		RenderSystem.scalef(1.0F, 1.0F, -1.0F);
@@ -182,6 +184,7 @@ public abstract class AbstractEntityWidget<E extends LivingEntity> implements Dr
 		immediate.draw();
 		//this.postRender(entity, matrices);
 
+		matrices.pop();
 		RenderSystem.popMatrix();
 
 		if (!inGame) { // Clear the fake ClientPlayerEntity so the MusicTracker doesn't NPE next tick

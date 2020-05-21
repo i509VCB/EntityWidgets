@@ -64,11 +64,6 @@
         <property name="message" value="missing blank line after block at same indentation level"/>
     </module>
 
-    <module name="LineLength">
-        <property name="max" value="120"/>
-        <property name="fileExtensions" value="java"/>
-    </module>
-
     <module name="TreeWalker">
         <!-- Ensure all imports are ship shape -->
         <module name="AvoidStarImport"/>

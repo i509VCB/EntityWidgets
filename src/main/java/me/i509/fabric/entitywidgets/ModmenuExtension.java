@@ -22,26 +22,20 @@
  * THE SOFTWARE.
  */
 
-package me.i509.fabric.entitywidgets.fake;
+package me.i509.fabric.entitywidgets;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.profiler.DummyProfiler;
-import net.minecraft.world.Difficulty;
+import io.github.prospector.modmenu.api.ConfigScreenFactory;
+import io.github.prospector.modmenu.api.ModMenuApi;
+import me.i509.fabric.entitywidgets.example.ExampleWidgetScreen;
 
-@Environment(EnvType.CLIENT)
-public class FakeClientWorld extends ClientWorld {
-	public FakeClientWorld(FakeClientPlayNetworkHandler fakeClientPlayNetworkHandler, Difficulty difficulty) {
-		super(
-				fakeClientPlayNetworkHandler,
-				new ClientWorld.Properties(difficulty, false, false),
-				fakeClientPlayNetworkHandler.getFakeDimensionType(),
-				0,
-				() -> DummyProfiler.INSTANCE,
-				null, // WorldRenderer
-				false,
-				0L // Seed?
-		);
+public class ModmenuExtension implements ModMenuApi {
+	@Override
+	public String getModId() {
+		return "entitywidgets";
+	}
+
+	@Override
+	public ConfigScreenFactory<?> getModConfigScreenFactory() {
+		return ExampleWidgetScreen::new;
 	}
 }
