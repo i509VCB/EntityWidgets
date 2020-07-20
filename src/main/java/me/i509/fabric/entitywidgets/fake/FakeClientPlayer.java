@@ -33,6 +33,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -40,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.Map;
 
 /**
- * A fake player entity which can be used to rendering.
+ * A fake player entity which can be used in rendering.
  */
 @Environment(EnvType.CLIENT)
 public class FakeClientPlayer extends AbstractClientPlayerEntity {
@@ -48,6 +49,8 @@ public class FakeClientPlayer extends AbstractClientPlayerEntity {
 	private final ImmutableList<PlayerModelPart> visibleModelParts;
 	private final Map<MinecraftProfileTexture.Type, Identifier> textures;
 	@Nullable private final String model;
+	private boolean sneaking;
+	private EntityPose pose = EntityPose.STANDING;
 
 	FakeClientPlayer(
 			ClientWorld world,
@@ -99,6 +102,10 @@ public class FakeClientPlayer extends AbstractClientPlayerEntity {
 		return this.textures.get(MinecraftProfileTexture.Type.CAPE);
 	}
 
+	public boolean canRenderCapeTexture() {
+		return true;
+	}
+
 	@Override
 	public boolean canRenderElytraTexture() {
 		return true;
@@ -113,5 +120,30 @@ public class FakeClientPlayer extends AbstractClientPlayerEntity {
 	@Override
 	public boolean isPartVisible(PlayerModelPart modelPart) {
 		return this.visibleModelParts.contains(modelPart);
+	}
+
+	@Override
+	public boolean isSneaking() {
+		return this.sneaking;
+	}
+
+	@Override
+	public void setSneaking(boolean sneaking) {
+		this.sneaking = sneaking;
+	}
+
+	@Override
+	public boolean isSneaky() {
+		return this.isSneaking();
+	}
+
+	@Override
+	public void setPose(EntityPose pose) {
+		this.pose = pose;
+	}
+
+	@Override
+	public EntityPose getPose() {
+		return this.pose;
 	}
 }

@@ -30,11 +30,6 @@ import me.i509.fabric.entitywidgets.example.ExampleWidgetScreen;
 
 public class ModmenuExtension implements ModMenuApi {
 	@Override
-	public String getModId() {
-		return "entitywidgets";
-	}
-
-	@Override
 	public ConfigScreenFactory<?> getModConfigScreenFactory() {
 		return ExampleWidgetScreen::new;
 	}

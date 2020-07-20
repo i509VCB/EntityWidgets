@@ -27,6 +27,7 @@ package me.i509.fabric.entitywidgets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Quaternion;
 
@@ -44,7 +45,7 @@ public interface EntityWidgetManipulation<E extends LivingEntity> {
 	 * @return an entity manipulation which does nothing.
 	 */
 	static <E extends LivingEntity> EntityWidgetManipulation<E> none() {
-		return AbstractEntityWidget::noManipulation;
+		return (entity, matrices, mouseX, mouseY, tickDelta) -> Quaternion.IDENTITY;
 	}
 
 	/**
@@ -56,8 +57,14 @@ public interface EntityWidgetManipulation<E extends LivingEntity> {
 	 * @return an entity manipulation which flips the entity
 	 */
 	static <E extends LivingEntity> EntityWidgetManipulation<E> flip() {
-		return AbstractEntityWidget::flip;
+		return (entity, matrices, mouseX, mouseY, tickDelta) -> {
+			Quaternion quaternion = Vector3f.POSITIVE_Z.getDegreesQuaternion(180.0F);
+			matrices.multiply(quaternion);
+			return quaternion;
+		};
 	}
+
+
 
 	/**
 	 * A manipulation which rotates the entity.
@@ -80,7 +87,24 @@ public interface EntityWidgetManipulation<E extends LivingEntity> {
 	 * @return an entity manipulation which makes an entity look towards the mouse cursor
 	 */
 	static <E extends LivingEntity> EntityWidgetManipulation<E> followCursor() {
-		return AbstractEntityWidget::followCursor;
+		return (entity, matrices, mouseX, mouseY, tickDelta) -> {
+			float mouseXFacing = (float) Math.atan(mouseX / 40.0F);
+			float mouseYFacing = (float) Math.atan(mouseY / 40.0F);
+			Quaternion flipQuaternion = Vector3f.POSITIVE_Z.getDegreesQuaternion(180.0F);
+			Quaternion tiltQuaternion = Vector3f.POSITIVE_X.getDegreesQuaternion(mouseYFacing * 20.0F);
+
+			flipQuaternion.hamiltonProduct(tiltQuaternion);
+			matrices.multiply(flipQuaternion);
+
+			entity.bodyYaw = 180.0F + mouseXFacing * 20.0F;
+			entity.yaw = 180.0F + mouseXFacing * 40.0F;
+			entity.pitch = -mouseYFacing * 20.0F;
+			entity.headYaw = entity.yaw;
+			entity.prevHeadYaw = entity.yaw;
+
+			tiltQuaternion.conjugate();
+			return tiltQuaternion;
+		};
 	}
 
 	/**

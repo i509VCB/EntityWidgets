@@ -22,14 +22,16 @@
  * THE SOFTWARE.
  */
 
-package me.i509.fabric.entitywidgets;
+package me.i509.fabric.entitywidgets.widget;
 
+import me.i509.fabric.entitywidgets.EntityWidgetManipulation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * A widget which allows an entity to be rendered on a screen.
@@ -56,7 +58,7 @@ public class TypedEntityWidget<E extends LivingEntity> extends AbstractEntityWid
 	 * @throws IllegalArgumentException if the {@link EntityType} is {@link EntityType#PLAYER}.
 	 * @see PlayerWidget PlayerWidget for rendering players.
 	 */
-	public TypedEntityWidget(int x, int y, int size, EntityType<E> entityType, BiConsumer<E, Float> entityManipulator,
+	public TypedEntityWidget(int x, int y, int size, EntityType<E> entityType, Consumer<E> entityManipulator,
 			EntityWidgetManipulation<E> manipulation) {
 		super(x, y, size, entityManipulator, manipulation);
 
@@ -71,6 +73,6 @@ public class TypedEntityWidget<E extends LivingEntity> extends AbstractEntityWid
 
 	@Override
 	protected E createEntity() {
-		return this.entityType.create(this.fakeClientWorld);
+		return this.entityType.create(FAKE_CLIENT_WORLD);
 	}
 }

@@ -26,22 +26,35 @@ package me.i509.fabric.entitywidgets.fake;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.profiler.DummyProfiler;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
 @Environment(EnvType.CLIENT)
 public class FakeClientWorld extends ClientWorld {
-	public FakeClientWorld(FakeClientPlayNetworkHandler fakeClientPlayNetworkHandler, Difficulty difficulty) {
+	private FakeClientPlayNetworkHandler networkHandler;
+
+	public FakeClientWorld(FakeClientPlayNetworkHandler networkHandler, Difficulty difficulty) {
 		super(
-				fakeClientPlayNetworkHandler,
+				networkHandler,
 				new ClientWorld.Properties(difficulty, false, false),
-				fakeClientPlayNetworkHandler.getFakeDimensionType(),
+				World.OVERWORLD,
+				DimensionType.OVERWORLD_REGISTRY_KEY,
+				networkHandler.getFakeDimensionType(),
 				0,
 				() -> DummyProfiler.INSTANCE,
-				null, // WorldRenderer
+				MinecraftClient.getInstance().worldRenderer,
 				false,
 				0L // Seed?
 		);
+		this.networkHandler = networkHandler;
+	}
+
+	public FakeClientPlayNetworkHandler getNetworkHandler() {
+		return this.networkHandler;
 	}
 }

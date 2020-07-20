@@ -22,12 +22,13 @@
  * THE SOFTWARE.
  */
 
-package me.i509.fabric.entitywidgets;
+package me.i509.fabric.entitywidgets.widget;
 
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
+import me.i509.fabric.entitywidgets.EntityWidgetManipulation;
 import me.i509.fabric.entitywidgets.fake.FakeClientPlayer;
 import me.i509.fabric.entitywidgets.fake.FakePlayerBuilder;
 import me.i509.fabric.entitywidgets.mixin.SkullBlockEntityAccessor;
@@ -74,7 +75,7 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 			int y,
 			int size,
 			Consumer<FakePlayerBuilder> playerBuilder,
-			BiConsumer<FakeClientPlayer, Float> entityManipulator,
+			Consumer<FakeClientPlayer> entityManipulator,
 			EntityWidgetManipulation<FakeClientPlayer> manipulation,
 			UUID playerUuid,
 			String fallbackUsername
@@ -88,7 +89,7 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 			int y,
 			int size,
 			Consumer<FakePlayerBuilder> playerBuilder,
-			BiConsumer<FakeClientPlayer, Float> entityManipulator,
+			Consumer<FakeClientPlayer> entityManipulator,
 			EntityWidgetManipulation<FakeClientPlayer> manipulation,
 			UUID playerUuid,
 			String fallbackUsername,
@@ -97,7 +98,7 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 		super(x, y, size, entityManipulator, manipulation);
 		this.fallbackProfile = new GameProfile(playerUuid, fallbackUsername);
 		this.playerBuilder = playerBuilder;
-		this.model = thinArms ? "default" : "slim";
+		this.model = thinArms ? "slim" : "default";
 		// Now the futures nightmare
 		GameProfile profile = new GameProfile(playerUuid, null);
 
@@ -106,8 +107,8 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		super.render(matrices, mouseX, mouseY, delta);
+	public void render(MatrixStack matrices, int mouseX, int mouseY, float tickDelta) {
+		super.render(matrices, mouseX, mouseY, tickDelta);
 	}
 
 	@Override
@@ -118,7 +119,7 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 			profile = this.fallbackProfile;
 		}
 
-		FakePlayerBuilder builder = new FakePlayerBuilder(this.fakeClientWorld, profile, this.model, this.textures);
+		FakePlayerBuilder builder = new FakePlayerBuilder(FAKE_CLIENT_WORLD, profile, this.model, this.textures);
 		this.playerBuilder.accept(builder);
 
 		return builder.build();
@@ -154,35 +155,35 @@ public class PlayerWidget extends AbstractEntityWidget<FakeClientPlayer> {
 				return;
 			}
 
-			client.execute(() -> {
+			client.submit(() -> {
 				if (fullProfile != null) {
 					PlayerWidget.this.fullProfile = fullProfile;
 				}
-			});
+			}).thenRunAsync(() -> { // Wait till it is completed
+				if (fullProfile == null) {
+					System.out.println("Failed to get profile");
+					return;
+				}
 
-			if (fullProfile == null) {
-				System.out.println("Failed to get profile");
-				return;
-			}
+				Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textureMap = client.getSkinProvider().getTextures(fullProfile);
 
-			Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textureMap = client.getSkinProvider().getTextures(fullProfile);
+				// Texture map is unchecked
+				if (textureMap.isEmpty()) {
+					textureMap = sessionService.getTextures(fullProfile, true);
+				}
 
-			// Texture map is unchecked
-			if (textureMap.isEmpty()) {
-				textureMap = sessionService.getTextures(fullProfile, true);
-			}
+				Map<MinecraftProfileTexture.Type, Identifier> loadedTextures = new EnumMap<>(
+						MinecraftProfileTexture.Type.class
+				);
 
-			Map<MinecraftProfileTexture.Type, Identifier> loadedTextures = new EnumMap<>(
-					MinecraftProfileTexture.Type.class
-			);
+				for (MinecraftProfileTexture.Type type : textureMap.keySet()) {
+					Identifier texture = client.getSkinProvider().loadSkin(textureMap.get(type), type);
+					loadedTextures.put(type, texture);
+				}
 
-			for (MinecraftProfileTexture.Type type : textureMap.keySet()) {
-				Identifier texture = client.getSkinProvider().loadSkin(textureMap.get(type), type);
-				loadedTextures.put(type, texture);
-			}
-
-			client.execute(() -> {
-				PlayerWidget.this.textures.putAll(loadedTextures);
+				client.execute(() -> {
+					PlayerWidget.this.textures.putAll(loadedTextures);
+				});
 			});
 		}
 	}

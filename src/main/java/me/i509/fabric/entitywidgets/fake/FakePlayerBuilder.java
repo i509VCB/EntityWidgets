@@ -44,6 +44,7 @@ public class FakePlayerBuilder {
 	// Builder fields
 	private final ImmutableList.Builder<PlayerModelPart> visibleParts = ImmutableList.builder();
 	private GameMode gameMode = GameMode.NOT_SET;
+	private boolean sneaking;
 
 	public FakePlayerBuilder(
 			FakeClientWorld world,

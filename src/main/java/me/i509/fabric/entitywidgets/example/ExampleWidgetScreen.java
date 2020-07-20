@@ -25,11 +25,12 @@
 package me.i509.fabric.entitywidgets.example;
 
 import me.i509.fabric.entitywidgets.EntityWidgetManipulation;
-import me.i509.fabric.entitywidgets.PlayerWidget;
-import me.i509.fabric.entitywidgets.TypedEntityWidget;
+import me.i509.fabric.entitywidgets.widget.PlayerWidget;
+import me.i509.fabric.entitywidgets.widget.TypedEntityWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.text.LiteralText;
@@ -56,15 +57,19 @@ public class ExampleWidgetScreen extends Screen {
 		super.init(client, width, height);
 		this.author = new PlayerWidget(120, 120, 40, builder -> {
 			builder.allParts().gameMode(GameMode.CREATIVE);
-		}, (fakeClientPlayer, tickDelta) -> {
+		}, (fakeClientPlayer) -> {
 			fakeClientPlayer.setCustomNameVisible(true);
+			fakeClientPlayer.setSneaking(true);
+			fakeClientPlayer.setPose(EntityPose.CROUCHING);
 		}, EntityWidgetManipulation.followCursor(), UUID.fromString("765e5d33-c991-454f-8775-b6a7a394c097"), "The_1_gamers", false);
+
 		this.currentAccount = new PlayerWidget(300, 200, 40, builder -> {
 			builder.allParts().gameMode(GameMode.CREATIVE);
-		}, (fakeClientPlayer, tickDelta) -> {
+		}, (fakeClientPlayer) -> {
 			fakeClientPlayer.setCustomNameVisible(true);
 		}, EntityWidgetManipulation.followCursor(), UUID.fromString(this.client.getSession().getUuid()), this.client.getSession().getUsername());
-		this.cat = new TypedEntityWidget<>(120, 200, 40, EntityType.CAT, (catEntity, tickDelta) -> {
+
+		this.cat = new TypedEntityWidget<>(120, 200, 40, EntityType.CAT, (catEntity) -> {
 			catEntity.setCatType(5); // Calico
 			catEntity.setCustomName(new LiteralText("Coco").styled(style -> style.withColor(TextColor.parse("#C46210")).withBold(true)));
 			catEntity.setCustomNameVisible(true);
@@ -75,7 +80,7 @@ public class ExampleWidgetScreen extends Screen {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float tickDelta) {
 		super.render(matrices, mouseX, mouseY, tickDelta);
 		this.renderBackground(matrices);
-		//noinspection ConstantConditions
+
 		this.drawCenteredText(matrices, this.textRenderer, new TranslatableText("example.entity.widget"), this.width / 2, 10, Formatting.YELLOW.getColorValue());
 		this.author.render(matrices, 120 - mouseX, 120 - mouseY, tickDelta);
 		this.currentAccount.render(matrices, 300 - mouseX, 200 - mouseY, tickDelta);

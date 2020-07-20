@@ -27,24 +27,30 @@ package me.i509.fabric.entitywidgets.fake;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.class_5318;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
+import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.world.dimension.DimensionType;
 
 @Environment(EnvType.CLIENT)
 public class FakeClientPlayNetworkHandler extends ClientPlayNetworkHandler {
 	private final DimensionType dimensionType;
+	private final RegistryTracker registryTracker;
 
 	public FakeClientPlayNetworkHandler(GameProfile profile) {
 		super(MinecraftClient.getInstance(), null, new ClientConnection(NetworkSide.CLIENTBOUND), profile);
-		final class_5318.class_5319 class_5319 = class_5318.method_29117();
-		this.dimensionType = class_5319.method_29116().get(DimensionType.OVERWORLD_REGISTRY_KEY.getValueId());
+		final RegistryTracker.Modifiable registryTracker = RegistryTracker.create();
+		this.registryTracker = registryTracker;
+		this.dimensionType = registryTracker.getDimensionTypeRegistry().get(DimensionType.OVERWORLD_REGISTRY_KEY.getValue());
 	}
 
 	public DimensionType getFakeDimensionType() {
 		return this.dimensionType;
+	}
+
+	public RegistryTracker getRegistryTracker() {
+		return this.registryTracker;
 	}
 }
